@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja" xml:lang="ja" dir="ltr">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>sRGB色空間の16進カラーコード・RGB値、線形RGB色空間の RGB値、配色属性 HSY の相互可逆変換.xhtml</title>
+	<meta name="description" content="文書内容の説明" />
+	
+	<style>
+/*<![CDATA[*/
+/* ここから　リセット CSS */
+*, *::before, *::after {
+	box-sizing: border-box;
+}
+
+/* class属性を持つul、ol要素のデフォルトのpaddingを削除、リストスタイルを削除 */
+ul, ol {
+	padding: 0;
+	list-style: none;
+}
+ul:not([class]), ol:not([class]) {
+	display: block;
+	list-style: disc outside none;
+	padding: 0 0 0 40px;
+}
+ol:not([class]) {
+	list-style-type: decimal;
+}
+
+/* デフォルトのmarginを削除 */
+body, h1, h2, h3, h4, p, ul, ol,
+ li, figure, figcaption, blockquote, dl, dd, fieldset {
+	margin: 0;
+}
+ul:not([class]), ol:not([class]) {
+	margin: 1em 0;
+}
+
+:root {
+	scroll-behavior: smooth;
+}
+
+body {
+	text-rendering: optimizeSpeed;
+	line-height: 1.5;
+}
+
+/* class を持たないA要素はデフォルトのスタイルを取得 */
+a:not([class]) {
+	 text-decoration-skip-ink: auto;
+}
+
+img {
+  vertical-align: top;
+}
+
+input, button, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+  background-color: inherit;
+  color: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	* {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+/* リセット CSS　ここまで */
+
+body {
+	min-width: 100%;
+	overflow-wrap: break-word;
+	-webkit-text-size-adjust: 100%;
+	text-size-adjust: 100%;
+	font-family: "KokoroRegular", "NotoSerifCJKjpRegular", sans-serif, system-ui;
+	text-rendering: geometricPrecision;
+	color: #ffffff;
+	text-shadow: 0 0.25px 0 black, calc(17.5px / 99) calc(17.5px / 99) 0 black, 0.25px 0 0 black, calc(17.5px / 99) calc(-17.5px / 99) 0 black,
+	 0 -0.25px 0 black, calc(-17.5px / 99) calc(-17.5px / 99) 0 black, -0.25px 0 0 black, calc(-17.5px / 99) calc(17.5px / 99) 0 black;
+	background-color: #282828;
+}
+@supports not ((-webkit-text-size-adjust: 100%) or (text-size-adjust: 100%)) {
+	body {
+		-webkit-text-size-adjust: none;
+		text-size-adjust: none;
+	}
+}
+#colorPickInput {
+	width: 16em;
+	height: 4em;
+}
+
+/*]]>*/
+	</style>
+</head>
+
+<body>
+	<header id="header" class="Header">
+		<p class="Header_text">1.0.0 版、最終更新：</p>
+	</header>
+		<main class="Main"><h1 class="Main_h1">sRGB色空間の16進カラーコード・RGB値、線形RGB色空間のRGB値、配色属性HSYの相互可逆変換.xhtml</h1>
+		<p class="Main_beginning">各値を直接またはスライダーでその割合を入力して、<!--
+		-->入力された値を満たす他の値を返します</p>
+		<section id="section01" class="MainSection"><h2 class="MainSection_h2">文書内容1</h2>
+			<p id="p1" class="MainSection_par">ここに説明が入る</p>
+		</section>
+	</main>
+	<form id="form" name="form">
+		<fieldset><legend accesskey="F"><h2>入力欄 (<kbd><kbd class="underline-text">F</kbd></kbd>)</h2></legend>
+			<fieldset><legend accesskey="S"><h3>入力の反映形態 (<kbd><kbd class="underline-text">S</kbd></kbd>)</h3></legend>
+				<p><label><input id="syncGovernorBox" name="syncGovernorBox" type="checkbox" checked="checked" />反映契機設定 - 入力値の反映を入力欄の変更中に同期するか(チェックを外していると入力完了時に一括で反映)</label></p>
+			</fieldset>
+			<fieldset><legend accesskey="C"><h3>カラーコード（sRGB色空間） (<kbd><kbd class="underline-text">C</kbd></kbd>)</h3></legend>
+				<p><input id="colorPickInput" name="colorPickInput" type="color" value="#bcbcbc" /></p>
+				<p><label><input id="colorCodeInput" name="colorCodeInput" type="text" value="bcbcbc" pattern="[\s\S]*[#＃]*[0-9a-fA-F０-９ａ-ｆＡ-Ｆ]{3,6}[\s\S]*" />(入力範囲： 000000–FFFFFF または 000–FFF の16進数、先頭の#の有無は自動で補完します)</label></p>
+				<p><label><input id="caseGovernorBox" name="caseGovernorBox" type="checkbox" checked="checked" />letter case設定 - カラーコードを大文字・小文字のいずれかに統一（チェックで小文字）</label></p>
+				<p><label><input id="prefixGovernorBox" name="prefixGovernorBox" type="checkbox" />接頭辞設定 - 出力するカラーコードに接頭辞｢#｣を付けるか（チェックで付ける）</label></p>
+			</fieldset>
+			<fieldset><legend accesskey="S"><h3>RGB 各チャンネルの明度 (sRGB色空間、入力範囲： 0–255 または 0–1 の数値) (<kbd><kbd class="underline-text">S</kbd></kbd>)</h3></legend>
+				<p>
+					<label>R: <input id="RNumInput" name='RNumInput' type="number" value="188" max="255" step="any" /></label>
+					<input id="RRangeInput" name="RRangeInput" type="range" value="0.7372549019607844" max="1" step="any" />
+					<input id="RNormalNumInput" name="RNormalNumInput" type="number" value="0.7372549019607844" max="1" step="any" />
+				</p>
+				<p>
+					<label>G: <input id="GNumInput" name="GNumInput" type="number" value="188" max="255" step="any" /></label>
+					<input id="GRangeInput" name="GRangeInput" type="range" value="0.7372549019607844" max="1" step="any" />
+					<input id="GNormalNumInput" name="GNormalNumInput" type="number" value="0.7372549019607844" max="1" step="any" />
+				</p>
+				<p>
+					<label>B: <input id="BNumInput" name="BNumInput" type="number" value="188" max="255" step="any" /></label>
+					<input id="BRangeInput" name="BRangeInput" type="range" value="0.7372549019607844" max="1" step="any" />
+					<input id="BNormalNumInput" name="BNormalNumInput" type="number" value="0.7372549019607844" max="1" step="any" />
+				</p>
+			</fieldset>
+			<fieldset><legend accesskey="L"><h3>線形RGB 各チャンネルの明度 (線形RGB色空間、入力範囲： 0–255 または 0–1 の数値) (<kbd><kbd class="underline-text">L</kbd></kbd>)</h3></legend>
+				<p>
+					<label>R: <input id="linearRNumInput" name='linearRNumInput' type="number" value="128.23604679830493" max="255" step="any" /></label>
+					<input id="linearRRangeInput" name="linearRRangeInput" type="range" value="0.5028864580325684" max="1" step="any" />
+					<input id="linearRNormalNumInput" name="linearRNormalNumInput" type="number" value="0.5028864580325684" max="1" step="any" />
+				</p>
+				<p>
+					<label>G: <input id="linearGNumInput" name="linearGNumInput" type="number" value="128.23604679830493" max="255" step="any" /></label>
+					<input id="linearGRangeInput" name="linearGRangeInput" type="range" value="0.5028864580325684" max="1" step="any" />
+					<input id="linearGNormalNumInput" name="linearGNormalNumInput" type="number" value="0.5028864580325684" max="1" step="any" />
+				</p>
+				<p>
+					<label>B: <input id="linearBNumInput" name="linearBNumInput" type="number" value="128.23604679830493" max="255" step="any" /></label>
+					<input id="linearBRangeInput" name="linearBRangeInput" type="range" value="0.5028864580325684" max="1" step="any" />
+					<input id="linearBNormalNumInput" name="linearBNormalNumInput" type="number" value="0.5028864580325684" max="1" step="any" />
+				</p>
+			</fieldset>
+			<fieldset>
+				<legend accesskey="M"><h3>色相 H、飽和度 S、相対輝度 Y（線形RGB色空間、入力範囲： 0–360（Hのみ） または 0–1 の数値)） (<kbd><kbd class="underline-text">M</kbd></kbd>)</h3></legend>
+				<p>
+					<label>H: <input id="degHNumInput" name="degHNumInput" type="number" value="" max="360" step="any" placeholder="未定義" /></label>
+					<input id="HRangeInput" name="HRangeInput" type="range" value="1" max="1" step="any" />
+					<input id="HNormalNumInput" name="HNormalNumInput" type="number" value="" max="1" step="any" placeholder="未定義" />
+				</p>
+				<p>
+					S: <input id="SRangeInput" name="SRangeInput" type="range" value="0" max="1" step="any" />
+					<input id="SNumInput" name="SNumInput" type="number" value="0" max="1" step="any" />
+				</p>
+				<p>
+					Y: <input id="YRangeInput" name="YRangeInput" type="range" value="0.5028864580325684" max="1" step="any" />
+					<input id="YNumInput" name="YNumInput" type="number" value="0.5028864580325684" max="1" step="any" />
+				</p>
+			</fieldset>
+			<!-- <p><input type="submit" id="formSubmit" name="formSubmit" form="form" value="入力値を反映" /></p> -->
+		</fieldset>
+	</form>
+	<footer>
+		<p><small>© 2020–2021 Yoshi Hikogori</small></p>
+		<p><small><a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a> に基づいて、その範囲に於いて個別の許し無しにこの文書を用いる事を許します。<!--
+			-->この文書について、用いる事によるいかなる損ないや内容の確度に対して、係る権利者は責任を負いません。
+		</small></p>
+	</footer>
+	
+	<script>
+/*<![CDATA[*/
+
+(()=>{'use strict';
+
+globalThis.addEventListener('error', (errorEvent, {message, source, lineno, colno, error, stopPropagation} = errorEvent)=>{
+	globalThis.alert(`${lineno} 行 ${colno} 列, ${error}\n"${message}"\n${source}`);
+}, {passive: true});
+document.body.getElementsByClassName('Header_text')[0].textContent += new Date(document.lastModified).toLocaleString();
+
+const [INITIAL_STANDARD_R_255, INITIAL_STANDARD_G_255, INITIAL_STANDARD_B_255] = [188, 188, 188],
+[INITIAL_STANDARD_R_1, INITIAL_STANDARD_G_1, INITIAL_STANDARD_B_1] = [0, 0, 0],
+[INITIAL_LINEAR_R_1, INITIAL_LINEAR_G_1, INITIAL_LINEAR_B_1] = [0.5028864580325684, 0.5028864580325684, 0.5028864580325684],
+[INITIAL_LINEAR_R_255, INITIAL_LINEAR_G_255, INITIAL_LINEAR_B_255] = [128.23604679830493, 128.23604679830493, 128.23604679830493],
+INITIAL_H_360 = 0, INITIAL_H_1 = 0, INITIAL_S = 0, INITIAL_Y = 0,
+form = document.forms.form,
+formElements = form.elements,
+syncGovernorBox = formElements.syncGovernorBox,
+colorPickInput = formElements.colorPickInput,
+colorCodeInput = formElements.colorCodeInput,
+caseGovernorBox = formElements.caseGovernorBox,
+prefixGovernorBox = formElements.prefixGovernorBox,
+RNumInput = formElements.RNumInput,
+RRangeInput = formElements.RRangeInput,
+RNormalNumInput = formElements.RNormalNumInput,
+GNumInput = formElements.GNumInput,
+GRangeInput = formElements.GRangeInput,
+GNormalNumInput = formElements.GNormalNumInput,
+BNumInput = formElements.BNumInput,
+BRangeInput = formElements.BRangeInput,
+BNormalNumInput = formElements.BNormalNumInput,
+linearRNumInput = formElements.linearRNumInput,
+linearRRangeInput = formElements.linearRRangeInput,
+linearRNormalNumInput = formElements.linearRNormalNumInput,
+linearGNumInput = formElements.linearGNumInput,
+linearGRangeInput = formElements.linearGRangeInput,
+linearGNormalNumInput = formElements.linearGNormalNumInput,
+linearBNumInput = formElements.linearBNumInput,
+linearBRangeInput = formElements.linearBRangeInput,
+linearBNormalNumInput = formElements.linearBNormalNumInput,
+degHNumInput = formElements.degHNumInput,
+HRangeInput = formElements.HRangeInput,
+HNormalNumInput = formElements.HNormalNumInput,
+SRangeInput = formElements.SRangeInput,
+SNumInput = formElements.SNumInput,
+YRangeInput = formElements.YRangeInput,
+YNumInput = formElements.YNumInput,
+defaultEventOptions = {passive: true},
+addAsyncListener = (target, listener, type = 'input')=>{
+	target.addEventListener(type, listener, defaultEventOptions);
+},
+addPotentialSyncLiser = (target, listener, type = 'input')=>{
+	target.addEventListener(type, listener, defaultEventOptions);
+	potentialSyncListeners.set(target, {type: type, listener: listeners});
+},
+RangedNumber = class RangedNumber{
+	constructor(min = 0, max = 1) {
+		this._min = min;
+		this._max = max;
+	}
+},
+ZeroToMaxRangedNumber = class ZeroToMaxRangedNumber extends RangedNumber{
+	constructor(max = 1) {
+		this._min = 0;
+		this._max = max;
+	}
+},
+ZeroTo1RangedNumber = class ZeroTo1RangedNumber extends ZeroToMaxRangedNumber{
+	constructor() {
+		super(1);
+	}
+},
+ZeroTo255RangedNumber = class ZeroTo255RangedNumber extends ZeroToMaxRangedNumber{
+	constructor() {
+		super(255);
+	}
+},
+ZeroTo360RangedNumber = class ZeroTo360RangedNumber extends ZeroToMaxRangedNumber{
+	constructor() {
+		super(360);
+	}
+},
+RgbChannel_1 = class RgbChannel_1 extends ZeroTo1RangedNumber{
+	constructor(value) {
+		super();
+		this.value = value;
+	}
+},
+RgbChannel_255 = class RgbChannel_255 extends ZeroTo255RangedNumber{
+	constructor(value) {
+		super();
+		this.value = value;
+	}
+},
+HsyValue_1 = class HsyValue_1 extends ZeroTo1RangedNumber{
+	constructor(value) {
+		super();
+		this.value = value;
+	}
+},
+HValue_360 = class HValue_360 extends ZeroTo360RangedNumber{
+	constructor(value) {
+		super();
+		this.value = value;
+	}
+},
+Cie1931RgbColorSpace = class Cie1931RgbColorSpace{
+	static LUMINANCE_R = 0.21263900587151;
+	static LUMINANCE_G = 0.71516867876776;
+	static LUMINANCE_B = 0.07219231536073;
+},
+SrgbColorSpace = class SrgbColorSpace extends Cie1931RgbColorSpace{
+	static GAMMA_EXPANSION_THRESHOLD_1 = 0.040448236277108191;
+	static GAMMA_EXPANSION_THRESHOLD_255 = 10.314300250662588;
+	static GAMMA_COMPRESSION_THRESHOLD = 0.0031306684425006340;
+	static convertHexValueToHexCode = (value)=>`${value.toString(16).padStart(6, '0')}`;
+	static convertHexCodeToHexValue = (code)=>(code.length === 6)? (
+		+`0x${code}`
+	) : (
+		+`0x${combinedHexCode[0]}${combinedHexCode[0]}${combinedHexCode[1]}${combinedHexCode[1]}${combinedHexCode[2]}${combinedHexCode[2]}`
+	);
+	static gammaCompresIntoSrgb_1 = (linear)=>{
+		if(linear <= this.GAMMA_COMPRESSION_THRESHOLD) return linear*323/25;
+		return (linear**(5/12)*211 - 11)/200;
+	};
+	static gammaCompresIntoSrgb_255 = (linear)=>{
+		if(linear <= this.GAMMA_COMPRESSION_THRESHOLD) return linear*16473/5;
+		return (linear**(5/12)*10761 - 561)/40;
+	};
+	static gammaExpandSrgb_1 = (standard)=>{
+		if(standard <= this.GAMMA_EXPANSION_THRESHOLD_1) return standard/12.92;
+		return ((standard + 0.055)/1.055)**2.4;
+	};
+	static gammaExpandSrgb_255 = (standard)=>{
+		if(standard <= this.GAMMA_EXPANSION_THRESHOLD_255) return standard*5/16473;
+		return ((standard*40 + 561)/10761)**2.4;
+	};
+},
+HsyColorSpace = class HsyColorSpace extends Cie1931RgbColorSpace{
+	static calculateH_360ByLinearRgb = (r, g, b)=>{
+		if(r === g && g === b) return null;
+		const max = Math.max(r, g, b), min = Math.min(r, g, b), diff = max - min;
+		return (min == b)? (
+			60 + 60*(g - r)/diff
+		) : (
+			(min == r)? (
+				180 + 60*(b - g)/diff
+			) : (
+				300 + 60*(r - b)/diff
+			)
+		);
+	};
+	static calculateSByLinearRgb_1 = (r, g, b)=>{
+		if(r === g && g === b) return 0;
+		const max = Math.max(r, g, b), min = Math.min(r, g, b);
+		return (max - min)/(1 - Math.abs(max + min - 1));
+	};
+	static calculateSByLinearRgb_255 = (r, g, b)=>{
+		if(r === g && g === b) return 0;
+		const max = Math.max(r, g, b), min = Math.min(r, g, b);
+		return (max - min)/(255 - Math.abs(max + min - 255));
+	};
+	static calculateYByLinearRgb_1 = (r, g, b)=>{
+		return Cie1931RgbColorSpace.LUMINANCE_R*r + Cie1931RgbColorSpace.LUMINANCE_G*g + Cie1931RgbColorSpace.LUMINANCE_B*b;
+	};
+	static calculateYByLinearRgb_255 = (r, g, b)=>{
+		return (Cie1931RgbColorSpace.LUMINANCE_R*r + Cie1931RgbColorSpace.LUMINANCE_G*g + Cie1931RgbColorSpace.LUMINANCE_B*b)/255;
+	};
+	static calculateIntervalByH_360 = (h)=>{
+		return (h < 180)? (
+			(h < 60)? (
+				0
+			) : (
+				(h < 120)? (
+					1
+				) : (
+					2
+				)
+			)
+		) : (
+			(h < 240)? (
+				3
+			) : (
+				(h < 300)? (
+					4
+				) : (
+					5
+				)	
+			)
+		);
+	};
+	static calculateIntervalByH_1 = (h)=>{
+		return (h < 0.5)? (
+			(h <= 0.16666666666666666)? (
+				0
+			) : (
+				(h <= 0.3333333333333333)? (
+					1
+				) : (
+					2
+				)
+			)
+		) : (
+			(h <= 0.6666666666666666)? (
+				3
+			) : (
+				(h < 0.8333333333333334)? (
+					4
+				) : (
+					5
+				)	
+			)
+		);
+	};
+	static calculateCompoundnessByH_360 = (h, interval = this.calculateIntervalByH_360(h))=> {
+		switch(interval) {
+			case 0:
+				return h/60;
+			break;
+			case 1:
+				return 2 - h/60;
+			break;
+			case 2:
+				return h/60 - 2;
+			break;
+			case 3:
+				return 4 - h/60;
+			break;
+			case 4:
+				return h/60 - 4;
+			break;
+			case 5:
+				return 6 - h/60;
+			break;
+		}
+	};
+	static calculateCompoundnessByH_1 = (h, interval = this.calculateIntervalByH_1(h))=> {
+		switch(interval) {
+			case 0:
+				return 6*h;
+			break;
+			case 1:
+				return 2 - 6*h;
+			break;
+			case 2:
+				return 6*h - 2;
+			break;
+			case 3:
+				return 4 - 6*h;
+			break;
+			case 4:
+				return 6*h - 4;
+			break;
+			case 5:
+				return 6 - 6*h;
+			break;
+		}
+	};
+	static calculatePureYByH_360 = (h, interval = this.calculateIntervalByH_360(h))=>{
+		switch(interval) {
+			case 0:
+				return 0.21263900587151 + 0.71516867876776*h/60;
+			break;
+			case 1:
+				return 1.14044669051078 - 0.21263900587151*h/60;
+			break;
+			case 2:
+				return 0.5707840480463 + 0.07219231536073*h/60;
+			break;
+			case 3:
+				return 2.93286703043177 - 0.71516867876776*h/60;
+			break;
+			case 4:
+				return 0.21263900587151*h/60 - 0.77836370812531;
+			break;
+			case 5:
+				return 0.64579289803589 - 0.07219231536073*h/60;
+			break;
+		}
+	};
+	static calculatePureYByH_1 = (h, interval = this.calculateIntervalByH_1(h))=>{
+		switch(interval) {
+			case 0:
+				return 0.21263900587151 + 4.2910120726066*h
+			break;
+			case 1:
+				return 1.1404466905108 - 1.2758340352291*h;
+			break;
+			case 2:
+				return 0.5707840480463 + 0.4331538921644*h;
+			break;
+			case 3:
+				return 2.93286703043177 - 4.2910120726066*h;
+			break;
+			case 4:
+				return 1.2758340352291*h - 0.77836370812531;
+			break;
+			case 5:
+				return 0.64579289803589 - 0.4331538921644*h;
+			break;
+		}
+	};
+},
+Cie1931RgbColor = class Cie1931RgbColor{
+	constructor(r, g, b) {
+		this.initialize(r, g, b);
+    }
+	static colorSpace = Cie1931RgbColorSpace;
+	static PRIORITY_1 = 0;
+	static PRIORITY_255 = 1;
+	setR_1(r) {
+		this._r_1 = r;
+		this._r_255 = 255*r;
+	}
+	setR_255(r) {
+		this._r_255 = r;
+		this._r_1 = r/255;
+	}
+	setG_1(g) {
+		this._g_1 = g;
+		this._g_255 = 255*g;
+	}
+	setG_255(g) {
+		this._g_255 = g;
+		this._g_1 = g/255;
+	}
+	setB_1(b) {
+		this._b_1 = b;
+		this._b_255 = 255*b;
+	}
+	setB_255(b) {
+		this._b_255 = b;
+		this._b_1 = b/255;
+	}
+	setRgb_1(r, g, b) {
+		this.priorityRange = Cie1931RgbColor.PRIORITY_1;
+		this.setR_1(r);
+		this.setG_1(g);
+		this.setB_1(b);
+	}
+	setRgb_255(r, g, b) {
+		this.priorityRange = Cie1931RgbColor.PRIORITY_255;
+		this.setR_255(r);
+		this.setG_255(g);
+		this.setB_255(b);
+	}
+	getR_1() { return this._r_1 }
+	getR_255() { return this._r_255 }
+	getG_1() { return this._g_1 }
+	getG_255() { return this._g_255 }
+	getB_1() { return this._b_1 }
+	getB_255() { return this._b_255 }
+	convertToSrgb(srgb = new SrgbColor()) {
+		srgb.setRgb_1(
+			SrgbColorSpace.gammaCompresIntoSrgb_1(this.getR_1()),
+			SrgbColorSpace.gammaCompresIntoSrgb_1(this.getG_1()),
+			SrgbColorSpace.gammaCompresIntoSrgb_1(this.getB_1())
+		);
+		return srgb;
+	}
+	convertToHsy(hsy = new HsyColor) {
+		if(this.priorityRange === Cie1931RgbColor.PRIORITY_1) hsy.setH_360Sy(
+			HsyColorSpace.calculateH_360ByLinearRgb(this.getR_1(), this.getG_1(), this.getB_1()),
+			HsyColorSpace.calculateSByLinearRgb_1(this.getR_1(), this.getG_1(), this.getB_1()),
+			HsyColorSpace.calculateYByLinearRgb_1(this.getR_1(), this.getG_1(), this.getB_1())
+		);
+		/* else if(this.priorityRange === Cie1931RgbColor.PRIORITY_255) */
+		else hsy.setH_360Sy(
+			HsyColorSpace.calculateH_360ByLinearRgb(this.getR_255(), this.getG_255(), this.getB_255()),
+			HsyColorSpace.calculateSByLinearRgb_255(this.getR_255(), this.getG_255(), this.getB_255()),
+			HsyColorSpace.calculateYByLinearRgb_255(this.getR_255(), this.getG_255(), this.getB_255())
+		);
+		return hsy;
+	}
+	initialize(r = INITIAL_LINEAR_R_1, g = INITIAL_LINEAR_G_1, b = INITIAL_LINEAR_B_1) {
+		this.setRgb_1(r, g, b);
+	}
+},
+SrgbColor = class SrgbColor{
+	constructor(r, g, b) {
+		this.initialize(r, g, b);
+    }
+	static colorSpace = SrgbColorSpace;
+	static PRIORITY_1 = 0;
+	static PRIORITY_255 = 1;
+	setR_1(r) {
+		this._r_1 = r;
+		this._r_255 = 255*r;
+	}
+	setR_255(r) {
+		this._r_255 = r;
+		this._r_1 = r/255;
+	}
+	setG_1(g) {
+		this._g_1 = g;
+		this._g_255 = 255*g;
+	}
+	setG_255(g) {
+		this._g_255 = g;
+		this._g_1 = g/255;
+	}
+	setB_1(b) {
+		this._b_1 = b;
+		this._b_255 = 255*b;
+	}
+	setB_255(b) {
+		this._b_255 = b;
+		this._b_1 = b/255;
+	}
+	setRgb_1(r, g, b) {
+		this.priorityRange = SrgbColor.PRIORITY_1;
+		this.setR_1(r);
+		this.setG_1(g);
+		this.setB_1(b);
+	}
+	setRgb_255(r, g, b) {
+		this.priorityRange = SrgbColor.PRIORITY_255;
+		this.setR_255(r);
+		this.setG_255(g);
+		this.setB_255(b);
+	}
+	setHexCode(code) {
+		if(code.length === 6) this.setRgb_255(
+			+`0x${code[0]}${code[1]}`,
+			+`0x${code[2]}${code[3]}`,
+			+`0x${code[4]}${code[5]}`,
+		);
+		else this.setRgb_255(
+			+`0x${code[0]}${code[0]}`,
+			+`0x${code[1]}${code[1]}`,
+			+`0x${code[2]}${code[2]}`,
+		);
+	}
+	setHexValue(value) {
+		this.setRgb_255(
+			value>>>0o20, /* 2*log_2(16) = 2*8 */
+			value>>>0o10 & 0x00ff, /* log_2(16) = 8 */
+			value & 0x0000ff
+		)
+	}
+	getR_1() { return this._r_1 }
+	getR_255() { return this._r_255 }
+	getG_1() { return this._g_1 }
+	getG_255() { return this._g_255 }
+	getB_1() { return this._b_1 }
+	getB_255() { return this._b_255 }
+	convertToLinearRgb(linearRgb = new Cie1931RgbColor()) {
+		if(this.priorityRange === SrgbColor.PRIORITY_1) linearRgb.setRgb_1(
+			SrgbColorSpace.gammaExpandSrgb_1(this.getR_1()),
+			SrgbColorSpace.gammaExpandSrgb_1(this.getG_1()),
+			SrgbColorSpace.gammaExpandSrgb_1(this.getB_1())
+		);
+		/* else if(this.priorityRange === SrgbColor.PRIORITY_255) */
+		else linearRgb.setRgb_1(
+			SrgbColorSpace.gammaExpandSrgb_255(this.getR_255()),
+			SrgbColorSpace.gammaExpandSrgb_255(this.getG_255()),
+			SrgbColorSpace.gammaExpandSrgb_255(this.getB_255())
+		);
+		return linearRgb;
+	}
+	initialize(r = INITIAL_STANDARD_R_255, g = INITIAL_STANDARD_G_255, b = INITIAL_STANDARD_B_255) {
+		this.setRgb_255(r, g, b);
+	}
+},
+HsyColor = class HsyColor{
+	constructor(h, s, y) {
+		this.initialize(h, s, y);
+	}
+	static colorSpace = HsyColorSpace;
+	static PRIORITY_H_360 = 0;
+	static PRIORITY_H_1 = 1;
+	setH_360(h) {
+		if(Number.isFinite(h)) {
+			this._h_360 = h;
+			this._h_1 = h/360;
+		}
+		else this._h_360 = this._h_1 = '';
+	}
+	setH_1(h) {
+		if(Number.isFinite(h)) {
+			this._h_1 = h;
+			this._h_360 = 360*h;
+		}
+		else this._h_1 = this._h_360 = '';
+	}
+	setS(s) {
+		this._s = s;
+	}
+	setY(y) {
+		this._y = y;
+	}
+	setH_360Sy(h, s, y) {
+		this.priorityHRange = HsyColor.PRIORITY_H_360;
+		this.setH_360(h);
+		this.setS(s);
+		this.setY(y);
+	}
+	setH_1Sy(h, s, y) {
+		this.priorityHRange = HsyColor.PRIORITY_H_1;
+		this.setH_1(h);
+		this.setS(s);
+		this.setY(y);
+	}
+	getH_360() { return this._h_360 }
+	getH_1() { return this._h_1 }
+	getS() { return this._s }
+	getY() { return this._y }
+	convertToLinearRgb(linearRgb = new Cie1931RgbColor()) {
+		const s = this.getS(), y = this.getY();
+		if(y === 0 || y === 1 || s === 0) {
+			linearRgb.setRgb_1(y, y, y);
+			return linearRgb;
+		}
+		if(this.priorityHRange === HsyColor.PRIORITY_H_360) {
+			const h = this.getH_360(),
+			interval = HsyColorSpace.calculateIntervalByH_360(h),
+			compoundness = HsyColorSpace.calculateCompoundnessByH_360(h, interval);
+			let tmp, l, x, n, d;
+			switch(interval) {
+				case 0:
+					tmp = s*(1 - 2*(Cie1931RgbColorSpace.LUMINANCE_R + Cie1931RgbColorSpace.LUMINANCE_G*compoundness)),
+					l = (2*y + tmp > 1)? (y + tmp)/(1 + tmp) : y/(1 - tmp),
+					x = l + ( s*(1 - Math.abs(2*l - 1)) )/2,
+					n = l - ( s*(1 - Math.abs(2*l - 1)) )/2,
+					d = n + (x - n)*compoundness;
+					linearRgb.setRgb_1(x, d, n);
+				return linearRgb;
+				case 1:
+					tmp = s*(1 - 2*(Cie1931RgbColorSpace.LUMINANCE_G + Cie1931RgbColorSpace.LUMINANCE_R*compoundness)),
+					l = (2*y + tmp > 1)? (y + tmp)/(1 + tmp) : y/(1 - tmp),
+					x = l + ( s*(1 - Math.abs(2*l - 1)) )/2,
+					n = l - ( s*(1 - Math.abs(2*l - 1)) )/2,
+					d = n + (x - n)*compoundness;
+					linearRgb.setRgb_1(d, x, n);
+				return linearRgb;
+				case 2:
+					tmp = s*(1 - 2*(Cie1931RgbColorSpace.LUMINANCE_G + Cie1931RgbColorSpace.LUMINANCE_B*compoundness)),
+					l = (2*y + tmp > 1)? (y + tmp)/(1 + tmp) : y/(1 - tmp),
+					x = l + ( s*(1 - Math.abs(2*l - 1)) )/2,
+					n = l - ( s*(1 - Math.abs(2*l - 1)) )/2,
+					d = n + (x - n)*compoundness;
+					linearRgb.setRgb_1(n, x, d);
+				return linearRgb;
+				case 3:
+					tmp = s*(1 - 2*(Cie1931RgbColorSpace.LUMINANCE_B + Cie1931RgbColorSpace.LUMINANCE_G*compoundness)),
+					l = (2*y + tmp > 1)? (y + tmp)/(1 + tmp) : y/(1 - tmp),
+					x = l + ( s*(1 - Math.abs(2*l - 1)) )/2,
+					n = l - ( s*(1 - Math.abs(2*l - 1)) )/2,
+					d = n + (x - n)*compoundness;
+					linearRgb.setRgb_1(n, d, x);
+				return linearRgb;
+				case 4:
+					tmp = s*(1 - 2*(Cie1931RgbColorSpace.LUMINANCE_B + Cie1931RgbColorSpace.LUMINANCE_R*compoundness)),
+					l = (2*y + tmp > 1)? (y + tmp)/(1 + tmp) : y/(1 - tmp),
+					x = l + ( s*(1 - Math.abs(2*l - 1)) )/2,
+					n = l - ( s*(1 - Math.abs(2*l - 1)) )/2,
+					d = n + (x - n)*compoundness;
+					linearRgb.setRgb_1(d, n, x);
+				return linearRgb;
+				case 5:
+					tmp = s*(1 - 2*(Cie1931RgbColorSpace.LUMINANCE_R + Cie1931RgbColorSpace.LUMINANCE_B*compoundness)),
+					l = (2*y + tmp > 1)? (y + tmp)/(1 + tmp) : y/(1 - tmp),
+					x = l + ( s*(1 - Math.abs(2*l - 1)) )/2,
+					n = l - ( s*(1 - Math.abs(2*l - 1)) )/2,
+					d = n + (x - n)*compoundness;
+					linearRgb.setRgb_1(x, n, d);
+				return linearRgb;
+			}
+		} else{ /* else if(this.priorityHRange === HsyColor.PRIORITY_H_1) */
+			const h = this.getH_1(),
+			interval = HsyColorSpace.calculateIntervalByH_1(h),
+			compoundness = HsyColorSpace.calculateCompoundnessByH_1(h, interval);
+			let tmp, l, x, n, d;
+			switch(interval) {
+				case 0:
+					tmp = s*(1 - 2*(Cie1931RgbColorSpace.LUMINANCE_R + Cie1931RgbColorSpace.LUMINANCE_G*compoundness)),
+					l = (2*y + tmp > 1)? (y + tmp)/(1 + tmp) : y/(1 - tmp),
+					x = l + ( s*(1 - Math.abs(2*l - 1)) )/2,
+					n = l - ( s*(1 - Math.abs(2*l - 1)) )/2,
+					d = n + (x - n)*compoundness;
+					linearRgb.setRgb_1(x, d, n);
+				return linearRgb;
+				case 1:
+					tmp = s*(1 - 2*(Cie1931RgbColorSpace.LUMINANCE_G + Cie1931RgbColorSpace.LUMINANCE_R*compoundness)),
+					l = (2*y + tmp > 1)? (y + tmp)/(1 + tmp) : y/(1 - tmp),
+					x = l + ( s*(1 - Math.abs(2*l - 1)) )/2,
+					n = l - ( s*(1 - Math.abs(2*l - 1)) )/2,
+					d = n + (x - n)*compoundness;
+					linearRgb.setRgb_1(d, x, n);
+				return linearRgb;
+				case 2:
+					tmp = s*(1 - 2*(Cie1931RgbColorSpace.LUMINANCE_G + Cie1931RgbColorSpace.LUMINANCE_B*compoundness)),
+					l = (2*y + tmp > 1)? (y + tmp)/(1 + tmp) : y/(1 - tmp),
+					x = l + ( s*(1 - Math.abs(2*l - 1)) )/2,
+					n = l - ( s*(1 - Math.abs(2*l - 1)) )/2,
+					d = n + (x - n)*compoundness;
+					linearRgb.setRgb_1(n, x, d);
+				return linearRgb;
+				case 3:
+					tmp = s*(1 - 2*(Cie1931RgbColorSpace.LUMINANCE_B + Cie1931RgbColorSpace.LUMINANCE_G*compoundness)),
+					l = (2*y + tmp > 1)? (y + tmp)/(1 + tmp) : y/(1 - tmp),
+					x = l + ( s*(1 - Math.abs(2*l - 1)) )/2,
+					n = l - ( s*(1 - Math.abs(2*l - 1)) )/2,
+					d = n + (x - n)*compoundness;
+					linearRgb.setRgb_1(n, d, x);
+				return linearRgb;
+				case 4:
+					tmp = s*(1 - 2*(Cie1931RgbColorSpace.LUMINANCE_B + Cie1931RgbColorSpace.LUMINANCE_R*compoundness)),
+					l = (2*y + tmp > 1)? (y + tmp)/(1 + tmp) : y/(1 - tmp),
+					x = l + ( s*(1 - Math.abs(2*l - 1)) )/2,
+					n = l - ( s*(1 - Math.abs(2*l - 1)) )/2,
+					d = n + (x - n)*compoundness;
+					linearRgb.setRgb_1(d, n, x);
+				return linearRgb;
+				case 5:
+					tmp = s*(1 - 2*(Cie1931RgbColorSpace.LUMINANCE_R + Cie1931RgbColorSpace.LUMINANCE_B*compoundness)),
+					l = (2*y + tmp > 1)? (y + tmp)/(1 + tmp) : y/(1 - tmp),
+					x = l + ( s*(1 - Math.abs(2*l - 1)) )/2,
+					n = l - ( s*(1 - Math.abs(2*l - 1)) )/2,
+					d = n + (x - n)*compoundness;
+					linearRgb.setRgb_1(x, n, d);
+				return linearRgb;
+			}
+		}
+	}
+	initialize(h = INITIAL_H_360, s = INITIAL_S, y = INITIAL_Y) {
+		this.setH_360Sy(h, s, y);
+	}
+},
+toggleSyncMode = e=>{
+	shouldSync = syncGovernorBox.checked;
+	if(shouldSync === true) {
+		for(const [target, listener] of potentialSyncListeners) {
+			target.addEventListener('input', listener, defaultEventOptions);
+		}
+		return undefined;
+	}
+	for(const [target, listener] of potentialSyncListeners) {
+		target.removeEventListener('input', listener, defaultEventOptions);
+	}
+},
+toggleCaseMode = e=>{
+	outputsLowerCase = caseGovernorBox.checked;
+	if(outputsLowerCase) return colorCodeInput.value = colorCodeInput.value.toLowerCase();
+	colorCodeInput.value = colorCodeInput.value.toUpperCase();
+},
+togglePrefixMode = e=>{
+	prefixesColorCode = prefixGovernorBox.checked;
+	if(prefixesColorCode) return colorCodeInput.value = `#${colorCodeInput.value}`;
+	colorCodeInput.value = colorCodeInput.value.slice(1);
+},
+reflectColorPickInputOnVariants = e=>{
+	const combinedHexCode = colorPickInput.value.slice(1);
+	if(outputsLowerCase === false) {
+		if(prefixesColorCode === false) return colorCodeInput.value = combinedHexCode.toUpperCase();
+		return colorCodeInput.value = `#${combinedHexCode.toUpperCase()}`;
+	}
+	if(prefixesColorCode === false) return colorCodeInput.value = combinedHexCode;
+	colorCodeInput.value = `#${combinedHexCode}`;
+},
+reflectColorCodeInputOnVariants = e=>{
+	if(colorCodeInput.checkValidity() === false) return undefined;
+	const combinedHexCode = /(?<=#*|＃*)([0-9a-fA-F０-９ａ-ｆＡ-Ｆ]{3,6})/.exec(colorCodeInput.value)[1].replace(
+		/[０-９ａ-ｆＡ-Ｆ]/g,
+		(s)=> String.fromCharCode(s.charCodeAt(0) - 65248)
+	);
+	if(combinedHexCode.length === 6) {
+		colorPickInput.value = `#${combinedHexCode}`;
+		return undefined;
+	}
+	colorPickInput.value = `#${combinedHexCode[0]}${combinedHexCode[0]}${combinedHexCode[1]}${combinedHexCode[1]}${combinedHexCode[2]}${combinedHexCode[2]}`;
+},
+reflectStandardR_255InputOnVariants = e=>{
+	if(RNumInput.value === '' || RNumInput.checkValidity() === false) return undefined;
+	RRangeInput.value = RNormalNumInput.value = RNumInput.valueAsNumber/255;
+},
+reflectStandardG_255InputOnVariants = e=>{
+	if(GNumInput.value === '' || GNumInput.checkValidity() === false) return undefined;
+	GRangeInput.value = GNormalNumInput.value = GNumInput.valueAsNumber/255;
+},
+reflectStandardB_255InputOnVariants = e=>{
+	if(BNumInput.value === '' || BNumInput.checkValidity() === false) return undefined;
+	BRangeInput.value = BNormalNumInput.value = BNumInput.valueAsNumber/255;
+},
+reflectStandardRRangeInputOnVariants = e=>{
+	if(RRangeInput.checkValidity() === false) return undefined;
+	RNumInput.value = 255*(RNormalNumInput.value = RRangeInput.valueAsNumber);
+},
+reflectStandardGRangeInputOnVariants = e=>{
+	if(GRangeInput.checkValidity() === false) return undefined;
+	GNumInput.value = 255*(GNormalNumInput.value = GRangeInput.valueAsNumber);
+},
+reflectStandardBRangeInputOnVariants = e=>{
+	if(BRangeInput.checkValidity() === false) return undefined;
+	BNumInput.value = 255*(BNormalNumInput.value = BRangeInput.valueAsNumber);
+},
+reflectStandardR_1InputOnVariants = e=>{
+	if(RNormalNumInput.value === '' || RNormalNumInput.checkValidity() === false) return undefined;
+	RNumInput.value = 255*(RRangeInput.value = RNormalNumInput.valueAsNumber);
+},
+reflectStandardG_1InputOnVariants = e=>{
+	if(GNormalNumInput.value === '' || GNormalNumInput.checkValidity() === false) return undefined;
+	GNumInput.value = 255*(GRangeInput.value = GNormalNumInput.valueAsNumber);
+},
+reflectStandardB_1InputOnVariants = e=>{
+	if(BNormalNumInput.value === '' || BNormalNumInput.checkValidity() === false) return undefined;
+	BNumInput.value = 255*(BRangeInput.value = BNormalNumInput.valueAsNumber);
+},
+reflectLinearR_255InputOnVariants = e=>{
+	if(linearRNumInput.value === '' || linearRNumInput.checkValidity() === false) return undefined;
+	linearRRangeInput.value = linearRNormalNumInput.value = linearRNumInput.valueAsNumber/255;
+},
+reflectLinearG_255InputOnVariants = e=>{
+	if(linearGNumInput.value === '' || linearGNumInput.checkValidity() === false) return undefined;
+	linearGRangeInput.value = linearGNormalNumInput.value = linearGNumInput.valueAsNumber/255;
+},
+reflectLinearB_255InputOnVariants = e=>{
+	if(linearBNumInput.value === '' || linearBNumInput.checkValidity() === false) return undefined;
+	linearBRangeInput.value = linearBNormalNumInput.value = linearBNumInput.valueAsNumber/255;
+},
+reflectLinearRRangeInputOnVariants = e=>{
+	if(linearRRangeInput.checkValidity() === false) return undefined;
+	linearRNumInput.value = 255*(linearRNormalNumInput.value = linearRRangeInput.valueAsNumber);
+},
+reflectLinearGRangeInputOnVariants = e=>{
+	if(linearGRangeInput.checkValidity() === false) return undefined;
+	linearGNumInput.value = 255*(linearGNormalNumInput.value = linearGRangeInput.valueAsNumber);
+},
+reflectLinearBRangeInputOnVariants = e=>{
+	if(linearBRangeInput.checkValidity() === false) return undefined;
+	linearBNumInput.value = 255*(linearBNormalNumInput.value = linearBRangeInput.valueAsNumber);
+},
+reflectLinearR_1InputOnVariants = e=>{
+	if(linearRNormalNumInput.value === '' || linearRNormalNumInput.checkValidity() === false) return undefined;
+	linearRNumInput.value = 255*(linearRRangeInput.value = linearRNormalNumInput.valueAsNumber);
+},
+reflectLinearG_1InputOnVariants = e=>{
+	if(linearGNormalNumInput.value === '' || linearGNormalNumInput.checkValidity() === false) return undefined;
+	linearGNumInput.value = 255*(linearGRangeInput.value = linearGNormalNumInput.valueAsNumber);
+},
+reflectLinearB_1InputOnVariants = e=>{
+	if(linearBNormalNumInput.value === '' || linearBNormalNumInput.checkValidity() === false) return undefined;
+	linearBNumInput.value = 255*(linearBRangeInput.value = linearBNormalNumInput.valueAsNumber);
+},
+reflectH_360InputOnVariants = e=>{
+	if(degHNumInput.checkValidity() === false) return undefined;
+	priorityHRange = HsyColor.PRIORITY_H_360;
+	const h = degHNumInput.valueAsNumber;
+	if(h === 360 || degHNumInput.value === '') {
+		HRangeInput.value = 1;
+		return degHNumInput.value = HNormalNumInput.value = '';
+	}
+	HRangeInput.value = HNormalNumInput.value = h/360;
+},
+reflectHRangeInputOnVariants = e=>{
+	if(HRangeInput.checkValidity() === false) return undefined;
+	priorityHRange = HsyColor.PRIORITY_H_1;
+	const h = HRangeInput.valueAsNumber;
+	if(h === 1) return degHNumInput.value = HNormalNumInput.value = '';
+	degHNumInput.value = 360*(HNormalNumInput.value = h);
+},
+reflectSRangeInputOnVariants = e=>{
+	if(SRangeInput.checkValidity() === false) return undefined;
+	SNumInput.value = SRangeInput.valueAsNumber;
+},
+reflectYRangeInputOnVariants = e=>{
+	if(YRangeInput.checkValidity() === false) return undefined;
+	YNumInput.value = YRangeInput.valueAsNumber;
+},
+reflectH_1InputOnVariants = e=>{
+	if(HNormalNumInput.checkValidity() === false) return undefined;
+	priorityHRange = HsyColor.PRIORITY_H_1;
+	const h = HRangeInput.value = HNormalNumInput.valueAsNumber;
+	if(h === 1 || HNormalNumInput.value === '') return degHNumInput.value = HNormalNumInput.value = '';
+	degHNumInput.value = 360*(HRangeInput.value = h);
+},
+reflectS_1InputOnVariants = e=>{
+	if(SNumInput.value === '' || SNumInput.checkValidity() === false) return undefined;
+	SRangeInput.value = SNumInput.valueAsNumber;
+},
+reflectY_1InputOnVariants = e=>{
+	if(YNumInput.value === '' || YNumInput.checkValidity() === false) return undefined;
+	YRangeInput.value = YNumInput.valueAsNumber;
+},
+updateSrgbByCode = (code)=>{
+	srgb.setHexCode(code);
+	RRangeInput.value = RNormalNumInput.value = ( RNumInput.value = srgb.getR_255() )/255;
+	GRangeInput.value = GNormalNumInput.value = ( GNumInput.value = srgb.getG_255() )/255;
+	BRangeInput.value = BNormalNumInput.value = ( BNumInput.value = srgb.getB_255() )/255;
+},
+updateCodeBySrgb = ()=>{
+	const combinedHexCode = `${Math.round(srgb.getR_255()).toString(16).padStart(2, '0')}${Math.round(srgb.getG_255()).toString(16).padStart(2, '0')}${Math.round(srgb.getB_255()).toString(16).padStart(2, '0')}`;
+	colorPickInput.value = `#${combinedHexCode}`;
+	if(outputsLowerCase === false) {
+		if(prefixesColorCode === true) return colorCodeInput.value = `#${combinedHexCode.toUpperCase()}`;
+		return colorCodeInput.value = combinedHexCode.toUpperCase();
+	}
+	if(prefixesColorCode === true) return colorCodeInput.value = `#${combinedHexCode}`;
+	colorCodeInput.value = combinedHexCode;
+},
+updateLinearRgbBySrgb = ()=>{
+	srgb.convertToLinearRgb(linearRgb);
+	linearRNumInput.value = 255*( linearRRangeInput.value = linearRNormalNumInput.value = linearRgb.getR_1() );
+	linearGNumInput.value = 255*( linearGRangeInput.value = linearGNormalNumInput.value = linearRgb.getG_1() );
+	linearBNumInput.value = 255*( linearBRangeInput.value = linearBNormalNumInput.value = linearRgb.getB_1() );
+},
+updateHsyByLinearRgb = ()=>{
+	linearRgb.convertToHsy(hsy);
+	const h = hsy.getH_360();
+	if(Number.isFinite(h)) HRangeInput.value = HNormalNumInput.value = ( degHNumInput.value = h )/360;
+	else {
+		degHNumInput.value = HNormalNumInput.value = '';
+		HRangeInput.value = 1;
+	}
+	SNumInput.value = SRangeInput.value = hsy.getS();
+	YNumInput.value = YRangeInput.value = hsy.getY();
+},
+updateSrgbByLinearRgb = ()=>{
+	linearRgb.convertToSrgb(srgb);
+	RNumInput.value = 255*( RNormalNumInput.value = RRangeInput.value = srgb.getR_1() );
+	GNumInput.value = 255*( GNormalNumInput.value = GRangeInput.value = srgb.getG_1() );
+	BNumInput.value = 255*( BNormalNumInput.value = BRangeInput.value = srgb.getB_1() );
+},
+updateLinearRgbByHsy = ()=>{
+	hsy.convertToLinearRgb(linearRgb);
+	linearRNumInput.value = 255*( linearRRangeInput.value = linearRNormalNumInput.value = linearRgb.getR_1() );
+	linearGNumInput.value = 255*( linearGRangeInput.value = linearGNormalNumInput.value = linearRgb.getG_1() );
+	linearBNumInput.value = 255*( linearBRangeInput.value = linearBNormalNumInput.value = linearRgb.getB_1() );
+},
+syncColorPickInput = e=>{
+	if(e.target.checkValidity() === false) return undefined;
+	updateSrgbByCode(colorPickInput.value.slice(1));
+	updateLinearRgbBySrgb();
+	updateHsyByLinearRgb();
+},
+syncColorCodeInput = e=>{
+	if(e.target.checkValidity() === false) return undefined;
+	const combinedHexCode = /(?<=#*|＃*)([0-9a-fA-F０-９ａ-ｆＡ-Ｆ]{3,6})/.exec(colorCodeInput.value)[1].replace(
+		/[０-９ａ-ｆＡ-Ｆ]/g,
+		(s)=> String.fromCharCode(s.charCodeAt(0) - 65248)
+	);
+	updateSrgbByCode(
+		(combinedHexCode.length === 6)? combinedHexCode : (
+			`${combinedHexCode[0]}${combinedHexCode[0]}${combinedHexCode[1]}${combinedHexCode[1]}${combinedHexCode[2]}${combinedHexCode[2]}`
+		)
+	);
+	updateLinearRgbBySrgb();
+	updateHsyByLinearRgb();
+},
+syncSrgb_255Input = e=>{
+	if(e.target.checkValidity() === false) return undefined;
+	srgb.setRgb_255(RNumInput.valueAsNumber, GNumInput.valueAsNumber, BNumInput.valueAsNumber);
+	updateCodeBySrgb();
+	updateLinearRgbBySrgb();
+	updateHsyByLinearRgb();
+},
+syncSrgb_1Input = e=>{
+	if(e.target.checkValidity() === false) return undefined;
+	srgb.setRgb_1(RNormalNumInput.valueAsNumber, GNormalNumInput.valueAsNumber, BNormalNumInput.valueAsNumber);
+	updateCodeBySrgb();
+	updateLinearRgbBySrgb();
+	updateHsyByLinearRgb();
+},
+syncLinearRgb_255Input = e=>{
+	if(e.target.checkValidity() === false) return undefined;
+	linearRgb.setRgb_255(linearRNumInput.valueAsNumber, linearGNumInput.valueAsNumber, linearBNumInput.valueAsNumber);
+	updateSrgbByLinearRgb();
+	updateCodeBySrgb();
+	updateHsyByLinearRgb();
+},
+syncLinearRgb_1Input = e=>{
+	if(e.target.checkValidity() === false) return undefined;
+	linearRgb.setRgb_1(linearRNormalNumInput.valueAsNumber, linearGNormalNumInput.valueAsNumber, linearBNormalNumInput.valueAsNumber);
+	updateSrgbByLinearRgb();
+	updateCodeBySrgb();
+	updateHsyByLinearRgb();
+},
+syncHsyInput = e=>{
+	if(e.target.checkValidity() === false) return undefined;
+	if(priorityHRange === HsyColor.PRIORITY_H_360) {
+		if(degHNumInput.value === '') hsy.setH_360Sy(0, 0, YNumInput.valueAsNumber);
+		else hsy.setH_360Sy(degHNumInput.valueAsNumber, SNumInput.valueAsNumber, YNumInput.valueAsNumber);
+	} else{
+		if(HNormalNumInput.value === '') hsy.setH_1Sy(0, 0, YNumInput.valueAsNumber);
+		else hsy.setH_1Sy(HNormalNumInput.valueAsNumber, SNumInput.valueAsNumber, YNumInput.valueAsNumber);
+	}
+	updateLinearRgbByHsy();
+	updateSrgbByLinearRgb();
+	updateCodeBySrgb();
+},
+optionsChangeLisners = new Set([
+	new Set([syncGovernorBox, toggleSyncMode]),
+	new Set([caseGovernorBox, toggleCaseMode]),
+	new Set([prefixGovernorBox, togglePrefixMode])
+]),
+newColorInputReflectors = new Set([
+	new Set([colorPickInput, reflectColorPickInputOnVariants]),
+	new Set([colorCodeInput, reflectColorCodeInputOnVariants]),
+	new Set([RNumInput, reflectStandardR_255InputOnVariants]),
+	new Set([GNumInput, reflectStandardG_255InputOnVariants]),
+	new Set([BNumInput, reflectStandardB_255InputOnVariants]),
+	new Set([RRangeInput, reflectStandardRRangeInputOnVariants]),
+	new Set([GRangeInput, reflectStandardGRangeInputOnVariants]),
+	new Set([BRangeInput, reflectStandardBRangeInputOnVariants]),
+	new Set([RNormalNumInput, reflectStandardR_1InputOnVariants]),
+	new Set([GNormalNumInput, reflectStandardG_1InputOnVariants]),
+	new Set([BNormalNumInput, reflectStandardB_1InputOnVariants]),
+	new Set([linearRNumInput, reflectLinearR_255InputOnVariants]),
+	new Set([linearGNumInput, reflectLinearG_255InputOnVariants]),
+	new Set([linearBNumInput, reflectLinearB_255InputOnVariants]),
+	new Set([linearRRangeInput, reflectLinearRRangeInputOnVariants]),
+	new Set([linearGRangeInput, reflectLinearGRangeInputOnVariants]),
+	new Set([linearBRangeInput, reflectLinearBRangeInputOnVariants]),
+	new Set([linearRNormalNumInput, reflectLinearR_1InputOnVariants]),
+	new Set([linearGNormalNumInput, reflectLinearG_1InputOnVariants]),
+	new Set([linearBNormalNumInput, reflectLinearB_1InputOnVariants]),
+	new Set([degHNumInput, reflectH_360InputOnVariants]),
+	new Set([HRangeInput, reflectHRangeInputOnVariants]),
+	new Set([YRangeInput, reflectYRangeInputOnVariants]),
+	new Set([SRangeInput, reflectSRangeInputOnVariants]),
+	new Set([HNormalNumInput, reflectH_1InputOnVariants]),
+	new Set([YNumInput, reflectY_1InputOnVariants]),
+	new Set([SNumInput, reflectS_1InputOnVariants]),
+]),
+potentialSyncListeners = new Set([
+	new Set([colorPickInput, syncColorPickInput]),
+	new Set([colorCodeInput, syncColorCodeInput]),
+	new Set([RNumInput, syncSrgb_255Input]),
+	new Set([GNumInput, syncSrgb_255Input]),
+	new Set([BNumInput, syncSrgb_255Input]),
+	new Set([RRangeInput, syncSrgb_1Input]),
+	new Set([GRangeInput, syncSrgb_1Input]),
+	new Set([BRangeInput, syncSrgb_1Input]),
+	new Set([RNormalNumInput, syncSrgb_1Input]),
+	new Set([GNormalNumInput, syncSrgb_1Input]),
+	new Set([BNormalNumInput, syncSrgb_1Input]),
+	new Set([linearRNumInput, syncLinearRgb_255Input]),
+	new Set([linearGNumInput, syncLinearRgb_255Input]),
+	new Set([linearBNumInput, syncLinearRgb_255Input]),
+	new Set([linearRRangeInput, syncLinearRgb_1Input]),
+	new Set([linearGRangeInput, syncLinearRgb_1Input]),
+	new Set([linearBRangeInput, syncLinearRgb_1Input]),
+	new Set([linearRNormalNumInput, syncLinearRgb_1Input]),
+	new Set([linearGNormalNumInput, syncLinearRgb_1Input]),
+	new Set([linearBNormalNumInput, syncLinearRgb_1Input]),
+	new Set([degHNumInput, syncHsyInput]),
+	new Set([HRangeInput, syncHsyInput]),
+	new Set([SRangeInput, syncHsyInput]),
+	new Set([YRangeInput, syncHsyInput]),
+	new Set([HNormalNumInput, syncHsyInput]),
+	new Set([SNumInput, syncHsyInput]),
+	new Set([YNumInput, syncHsyInput])
+]),
+reinitialize = ()=>{
+	
+},
+initialize = ()=>{
+	for(const [target, listener] of newColorInputReflectors) {
+		target.addEventListener('input', listener, defaultEventOptions);
+	}
+	for(const [target, listener] of potentialSyncListeners) {
+		target.addEventListener('input', listener, defaultEventOptions);
+		target.addEventListener('change', listener, defaultEventOptions);
+	}
+	for(const [target, listener] of optionsChangeLisners) {
+		target.addEventListener('change', listener, defaultEventOptions);
+	}
+	reinitialize();
+};
+
+const linearRgb = new Cie1931RgbColor(),
+srgb = new SrgbColor(),
+hsy = new HsyColor();
+let shouldSync = true, outputsLowerCase = true, prefixesColorCode = false, priorityHRange = HsyColor.PRIORITY_H_360;
+
+initialize();
+
+})();
+
+/*]]>*/
+	</script>
+	
+</body>
+</html>
